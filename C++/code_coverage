@@ -1,0 +1,80 @@
+#!/bin/bash
+# Written by Adam Wilson January 2014
+# This is an interactive script to make viewing gcov code coverage results easier.
+
+# your editor of choice (i use a build of 2.2.6 nano I keep in my personal bin directory)
+EDITOR=~/bin/nano
+
+# the executable that make spits out
+# make sure this is a relative path (or a full aboslute path)
+EXECUTABLE=./a.out
+
+# gets a list of all source files in the directory
+# "2>" just redirects errors but not regular output
+# "-1" tells ls to print one file name per line
+SOURCEFILES=`ls -1 *.c *.cc *.cpp 2> /dev/null`
+
+# function to display and process the menu
+# ususally the work for each option would have it's own function
+# but this is a pretty simple script
+function menu
+{
+	# display the prompt
+	echo ""
+	echo "View code coverage on which file?"
+
+	# select handles user input for a list of choices
+	# the result will be stored in variable $FILE
+	select FILE in $SOURCEFILES "Quit"; do
+		# this will perform a action based on the choice selected
+		case $FILE in
+			"Quit") # exit the program
+				exit 0
+				;;
+			*)	# every other case (i.e. a file was picked)
+				if [ -f $FILE ]
+				then
+					# this command shows the overall coverage results
+					gcov $FILE
+
+					# only ask to see detail results if gcov made a coverage file
+					if [ -f "$FILE.gcov" ]
+					then
+						# display a submenu that asks if we want to view the details of the coverage
+						echo "View detail coverage?"
+						select YN in "Yes" "No"; do
+							case $YN in
+								"Yes")
+									$EDITOR "$FILE.gcov"
+									break
+									;;
+								"No")
+									break
+									;;
+							esac
+						done
+					fi
+				fi
+				menu
+				;;
+		esac
+	done
+}
+
+# make sure we have an up-to-date build of the project
+echo "Running make."
+make > /dev/null
+
+# only continue if make reports no problems
+if [ $? -eq 0 ]
+then
+
+	# The program has to be run at least once, but no need to show the output
+	# ">" redirects the output of a program to a file. Errors are not redirected.
+	# anything reedirected to /dev/null is just ignored (i.e. not saved or displayed)
+	echo "Building coverage results"
+	$EXECUTABLE > /dev/null
+
+	# display the menu
+	menu
+fi

@@ -1,0 +1,10 @@
+#!/bin/bash
+# Written by Adam Wilson January 2014
+# Will make a porject and if no errors are reported, will start gdb on the result
+
+make
+
+if [ $? -eq 0 ]
+then
+	gdb a.out
+fi
