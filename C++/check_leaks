@@ -1,0 +1,13 @@
+#!/bin/bash
+
+EXECUTABLE=./a.out
+
+# make sure the build is current
+make
+
+
+# if no make errors, test for memory leaks
+if [ $? -eq 0 ]
+then
+	valgrind --leak-check=full $EXECUTABLE
+fi
