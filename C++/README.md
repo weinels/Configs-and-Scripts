@@ -10,3 +10,5 @@ code_coverage: This is an interactive script that will let you view code coverag
 run_tests: This is a simple script that will run make and then run the compiled binary only if make reported no errors.
 
 debug_tests: This is a simple script that will run make and then start gdb with the compiled binary.
+
+check_leaks: Simple script that will use valgrind to check the compiled binary for memory leaks.
