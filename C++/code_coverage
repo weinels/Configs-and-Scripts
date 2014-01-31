@@ -3,7 +3,7 @@
 # This is an interactive script to make viewing gcov code coverage results easier.
 
 # your editor of choice (i use a build of 2.2.6 nano I keep in my personal bin directory)
-EDITOR=~/bin/nano
+EDITOR=dex
 
 # the executable that make spits out
 # make sure this is a relative path (or a full aboslute path)
@@ -35,8 +35,11 @@ function menu
 				if [ -f $FILE ]
 				then
 					# this command shows the overall coverage results
-					gcov $FILE
-
+					# by piping through grep, we can ignore % results for libraries
+					echo
+					gcov $FILE | grep -A 1 -m 1 "$FILE"
+					echo
+					
 					# only ask to see detail results if gcov made a coverage file
 					if [ -f "$FILE.gcov" ]
 					then
