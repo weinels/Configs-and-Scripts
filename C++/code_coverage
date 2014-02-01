@@ -25,11 +25,19 @@ function menu
 
 	# select handles user input for a list of choices
 	# the result will be stored in variable $FILE
-	select FILE in $SOURCEFILES "Quit"; do
+	select FILE in $SOURCEFILES "Summary" "Quit"; do
 		# this will perform a action based on the choice selected
 		case $FILE in
 			"Quit") # exit the program
 				exit 0
+				;;
+			"Summary")	# display a summary of all files
+				echo
+				for F in $SOURCEFILES
+				do
+					gcov $F | grep -A 1 -m 1 "$F"	
+				done
+				menu
 				;;
 			*)	# every other case (i.e. a file was picked)
 				if [ -f $FILE ]
