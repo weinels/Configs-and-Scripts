@@ -5,10 +5,6 @@
 # your editor of choice (i use a build of 2.2.6 nano I keep in my personal bin directory)
 EDITOR=dex
 
-# the executable that make spits out
-# make sure this is a relative path (or a full aboslute path)
-EXECUTABLE=./a.out
-
 # gets a list of all source files in the directory
 # "2>" just redirects errors but not regular output
 # "-1" tells ls to print one file name per line
@@ -72,6 +68,14 @@ function menu
 	done
 }
 
+# check arguments
+
+if [ $# -eq 0 ]
+then
+	echo "Must pass binaries to build coverage result from."
+	exit 1
+fi
+
 # make sure we have an up-to-date build of the project
 echo "Running make."
 make > /dev/null
@@ -84,7 +88,11 @@ then
 	# ">" redirects the output of a program to a file. Errors are not redirected.
 	# anything reedirected to /dev/null is just ignored (i.e. not saved or displayed)
 	echo "Building coverage results"
-	$EXECUTABLE > /dev/null
+
+	for BINARY in "$@"
+	do
+		./$BINARY > /dev/null 2> /dev/null
+	done
 
 	# display the menu
 	menu

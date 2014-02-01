@@ -6,5 +6,5 @@ make
 
 if [ $? -eq 0 ]
 then
-	./a.out
+	./a.out $@
 fi
