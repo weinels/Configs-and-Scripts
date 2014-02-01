@@ -9,5 +9,5 @@ make
 # if no make errors, test for memory leaks
 if [ $? -eq 0 ]
 then
-	valgrind --leak-check=full $EXECUTABLE
+	valgrind --leak-check=full $EXECUTABLE $@
 fi
