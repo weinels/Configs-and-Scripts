@@ -10,90 +10,132 @@ EDITOR=dex
 # "-1" tells ls to print one file name per line
 SOURCEFILES=`ls -1 *.c *.cc *.cpp 2> /dev/null`
 
-# function to display and process the menu
-# ususally the work for each option would have it's own function
-# but this is a pretty simple script
-function menu
-{
-	# display the prompt
-	echo ""
-	echo "View code coverage on which file?"
-
-	# select handles user input for a list of choices
-	# the result will be stored in variable $FILE
-	select FILE in $SOURCEFILES "Summary" "Quit"; do
-		# this will perform a action based on the choice selected
-		case $FILE in
-			"Quit") # exit the program
-				exit 0
-				;;
-			"Summary")	# display a summary of all files
-				echo
-				for F in $SOURCEFILES
-				do
-					gcov $F | grep -A 1 -m 1 "$F"	
-				done
-				menu
-				;;
-			*)	# every other case (i.e. a file was picked)
-				if [ -f $FILE ]
-				then
-					# this command shows the overall coverage results
-					# by piping through grep, we can ignore % results for libraries
-					echo
-					gcov $FILE | grep -A 1 -m 1 "$FILE"
-					echo
-					
-					# only ask to see detail results if gcov made a coverage file
-					if [ -f "$FILE.gcov" ]
-					then
-						# display a submenu that asks if we want to view the details of the coverage
-						echo "View detail coverage?"
-						select YN in "Yes" "No"; do
-							case $YN in
-								"Yes")
-									$EDITOR "$FILE.gcov"
-									break
-									;;
-								"No")
-									break
-									;;
-							esac
-						done
-					fi
-				fi
-				menu
-				;;
-		esac
-	done
-}
-
-# check arguments
-
-if [ $# -eq 0 ]
-then
-	echo "Must pass binaries to build coverage result from."
-	exit 1
-fi
-
 # make sure we have an up-to-date build of the project
-echo "Running make."
-make > /dev/null
+dialog --infobox "Running make." 3 17
+make &> /dev/null
 
 # only continue if make reports no problems
 if [ $? -eq 0 ]
 then
 
-	# The program has to be run at least once, but no need to show the output
-	# ">" redirects the output of a program to a file. Errors are not redirected.
-	# anything reedirected to /dev/null is just ignored (i.e. not saved or displayed)
-	echo "Building coverage results"
+	# if the file .codecoverage exists, then we will run the commands in the file
+	# otherwise, we'll ask the user what executables thon wants to run
+	if [ -f .codecoveragecmds ]
+	then
+		dialog --infobox "Building coverage data." 3 26
+		# try to run every command in the file
+		while read CMD; do
+			$CMD &> /dev/null
 
-	for BINARY in "$@"
+			# notify the user if one of the files reported an error
+			if [ $? -ne 0 ]
+			then
+				dialog --yesno "A program didn't exit cleanly:\n$CMD\n\nDo you wish to continue?" 9 35
+				if [ $? -eq 1]
+				then
+					clear
+					exit
+				fi
+			fi
+		done < .codecoveragecmds
+	else
+		# get the names of all executable files
+		EXECUTABLES=`find . -type f -perm -u=x,g=x,o=x -print`
+
+		# build the options array
+		WIDTH=0
+		for FILE in $EXECUTABLES
+		do
+			# if the file name is the longest yet, record the length
+			if [ ${#FILE} -gt $MAX ]
+			then
+				MAX=${#FILE}
+			fi
+
+			# add an item for this file to the array
+			# dialog checklists rows are: Tag Item Status
+			LIST+=("$FILE" "" "on")
+		done
+
+		# make sure the dialog is a minum width
+		if [ $WIDTH -lt 50 ]
+		then
+			WIDTH=50
+		fi
+
+		LISTHEIGHT=$((${#LIST[@]}/3)) # the array has 3 items that correspond to a single row
+		HEIGHT=$(($LISTHEIGHT+9))
+
+		# prompt the user, saving the resulting choices
+		CHOICES=`dialog --stdout --separate-output --cancel-label "Exit" --checklist "Which executables do you wish to run for coverage results?" $HEIGHT $WIDTH $LISTHEIGHT "${LIST[@]}"`
+		if [ $? -eq 1 ]
+		then
+			# the user selected exit
+			clear
+			exit 0
+		fi
+
+		# Now, of the choices, ask which need command line arugments
+
+		for CMD in $CHOICES
+		do
+			# first ask for command line arguments
+			ARGS=`dialog --stdout --no-cancel --ok-label "Run" --inputbox "Arguments for $CMD:" 8 50`
+			dialog --infobox "Running $CMD" 3 25
+			$CMD $ARGS &> \dev\null
+
+			# notify the user if command didn't exit cleanly
+			if [ $? -ne 0 ]
+			then
+				dialog --yesno "A program didn't exit cleanly:\n$CMD $ARGS\n\nDo you wish to continue?" 9 35
+				if [ $? -eq 1 ]
+				then
+					clear
+					exit
+				fi
+			fi
+		done
+			
+	fi
+
+	# getting the summaries can take a while, let the use know whats going on
+	dialog --infobox "Building coverage summary." 3 30
+
+	# build the menu options
+	LIST=()
+	for FILE in $SOURCEFILES
 	do
-		./$BINARY > /dev/null 2> /dev/null
+		# this long chain extracts the coverage percentage of a file
+		PERCENTAGE=`gcov "$FILE" | grep -A 1 -m 1 "$FILE" | grep "Lines executed" | cut -d':' -f 2 | cut -d' ' -f 1`
+		LIST+=("$FILE" "$PERCENTAGE")
 	done
 
-	# display the menu
-	menu
+	LISTHEIGHT=$((${#LIST[@]}/2)) # the array has 2 items that correspond to a single row
+	HEIGHT=$(($LISTHEIGHT+9))
+	WIDTH=50
+	
+	# let the user view the code coverage details
+	# keep presenting the menu until Exit is selected
+	RES=0
+	while [ $RES -ne 1 ]
+	do
+		CHOICE=`dialog --stdout --cancel-label "Exit" --menu "View details of which file?" $HEIGHT $WIDTH $LISTHEIGHT "${LIST[@]}"`
+		RES=$?
+
+		if [ "$CHOICE" != "" ]
+		then
+			# Only show details if there is a FILE.gcov file
+			if [ -f "$CHOICE.gcov" ]
+			then
+				dialog --title "$CHOICE coverage details" --textbox "$CHOICE.gcov" 200 200
+			else
+				dialog --msgbox "There are no coverage details for $CHOICE" 5 50
+			fi
+		fi
+	done
+		
+else
+	dialog --msgbox "Make encountered errors." 5 30
 fi
+
+clear
