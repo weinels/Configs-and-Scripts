@@ -44,6 +44,7 @@ then
 
 		# build the options array
 		WIDTH=0
+		MAX=0
 		for FILE in $EXECUTABLES
 		do
 			# if the file name is the longest yet, record the length
@@ -52,11 +53,14 @@ then
 				MAX=${#FILE}
 			fi
 
-			# add an item for this file to the array
-			# dialog checklists rows are: Tag Item Status
-			LIST+=("$FILE" "" "on")
+			if [ $FILE != $0 ]
+			then
+				# add an item for this file to the array
+				# dialog checklists rows are: Tag Item Status
+				LIST+=("$FILE" "" "on")
+			fi
 		done
-
+		
 		# make sure the dialog is a minum width
 		if [ $WIDTH -lt 50 ]
 		then
@@ -82,7 +86,7 @@ then
 			# first ask for command line arguments
 			ARGS=`dialog --stdout --no-cancel --ok-label "Run" --inputbox "Arguments for $CMD:" 8 50`
 			dialog --infobox "Running $CMD" 3 25
-			$CMD $ARGS &> \dev\null
+			$CMD $ARGS &> /dev/null
 
 			# notify the user if command didn't exit cleanly
 			if [ $? -ne 0 ]
