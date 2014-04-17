@@ -1,1 +1,130 @@
 #!/bin/bash
+# Adam Wilson
+# April 2014
+# This script will create symlinks from any scripts or config files in this repo
+# because you can't forward declare functions in bash, the files to link are located at
+# the bottom of the file
+
+# will link a file using absolute paths
+# this is where you change to link by relative paths
+link()
+{
+	# $1 is the source
+	local src=$(cd $(dirname $1); pwd)/$(basename $1)
+	
+	# $2 is the destination
+	local dst=$(cd $(dirname $2); pwd)/$(basename $2)
+	
+	# only continue if something was passed for both arguments
+	if [ $src ] && [ $dst ]
+	then
+		# make sure src is a regular file
+		if [ ! -f $src ]
+		then
+			return
+		fi
+		
+		# if dst is already a link, unlink it
+		if [ -L $dst ]
+		then
+			unlink $dst
+		fi
+
+		# if dst is writable, rename it otherwise abort
+		if [ -w $dst ]
+		then
+			if [ -e "$dst.old" ]
+			then
+				return
+			fi
+
+			mv $dst "$dst.old"
+		else
+			return
+		fi
+
+		ln -s $src $dst
+	fi
+}
+
+try_to_link()
+{
+	local old_path=`pwd`
+	cd `pwd $dst`
+	
+	# $1 will contain the source
+	local src=$1
+	local srclen=${#src}
+	
+	# $2 will contain the destination
+	local dst=$2
+	local dstlen=${#dst}
+	
+	# check that the file exists and is writable
+	if [ -L $dst ]
+	then
+		local link=`readlink -f $dst`
+		local linklen=${#link}
+		if [ $link ]
+		then
+			dialog --title "Overwrite Symlink?" --yesno "$dst\nis already linked to\n$link" 7 $(($dstlen>$linklen?$dstlen+4:$linklen+4))
+			if [ $? -eq 0 ]
+			then
+				link $src $dst
+			else
+				:
+			fi
+		else
+			link $src $dst
+		fi
+	else
+		if [ -a $dst ]
+		then
+			if [ -w $dst ]
+			then
+				dialog --title "Overwrite File?" --yesno "Replace $dst?\nWill move current file to:\n$dst.old" 8 $(($dstlen+10>30?$dstlen+12:32))
+				if [ $? -eq 0 ]
+				then
+					link $src $dst
+				else
+					:
+				fi
+			else
+				dialog --title "Error" --msgbox "File exists and isn't writable:\n$dst" 6 $(($dstlen>35?$dstlen+4:35))
+			fi
+		else
+			link $src $dst
+		fi
+	fi
+
+	cd $old_path
+}
+
+size=0
+
+# adds to the list of links to prompt for
+prompt_for()
+{
+	# $1 is the title
+	# $2 is the source
+	# $3 is the destination
+
+	titles[$size]=$1
+	sources[$size]=$2
+	destinations[$size]=$3
+	size=$size+1
+}
+
+# displays the prompt and tries to perform the selceted links
+proccess()
+{
+	# if there is nothing to link, exit
+	if [ $size -eq 0 ]
+	then
+		return
+	fi
+
+	# display prompt
+
+	# try to link selected
+}
