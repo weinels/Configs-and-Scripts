@@ -1,0 +1,99 @@
+#!/bin/bash
+# Written by Adam Wilson January 2014
+# This is an interactive script to make viewing gcov code coverage results easier.
+
+# your editor of choice (i use a build of 2.2.6 nano I keep in my personal bin directory)
+EDITOR=dex
+
+# gets a list of all source files in the directory
+# "2>" just redirects errors but not regular output
+# "-1" tells ls to print one file name per line
+SOURCEFILES=`ls -1 *.c *.cc *.cpp 2> /dev/null`
+
+# function to display and process the menu
+# ususally the work for each option would have it's own function
+# but this is a pretty simple script
+function menu
+{
+	# display the prompt
+	echo ""
+	echo "View code coverage on which file?"
+
+	# select handles user input for a list of choices
+	# the result will be stored in variable $FILE
+	select FILE in $SOURCEFILES "Summary" "Quit"; do
+		# this will perform a action based on the choice selected
+		case $FILE in
+			"Quit") # exit the program
+				exit 0
+				;;
+			"Summary")	# display a summary of all files
+				echo
+				for F in $SOURCEFILES
+				do
+					gcov $F | grep -A 1 -m 1 "$F"	
+				done
+				menu
+				;;
+			*)	# every other case (i.e. a file was picked)
+				if [ -f $FILE ]
+				then
+					# this command shows the overall coverage results
+					# by piping through grep, we can ignore % results for libraries
+					echo
+					gcov $FILE | grep -A 1 -m 1 "$FILE"
+					echo
+					
+					# only ask to see detail results if gcov made a coverage file
+					if [ -f "$FILE.gcov" ]
+					then
+						# display a submenu that asks if we want to view the details of the coverage
+						echo "View detail coverage?"
+						select YN in "Yes" "No"; do
+							case $YN in
+								"Yes")
+									$EDITOR "$FILE.gcov"
+									break
+									;;
+								"No")
+									break
+									;;
+							esac
+						done
+					fi
+				fi
+				menu
+				;;
+		esac
+	done
+}
+
+# check arguments
+
+if [ $# -eq 0 ]
+then
+	echo "Must pass binaries to build coverage result from."
+	exit 1
+fi
+
+# make sure we have an up-to-date build of the project
+echo "Running make."
+make > /dev/null
+
+# only continue if make reports no problems
+if [ $? -eq 0 ]
+then
+
+	# The program has to be run at least once, but no need to show the output
+	# ">" redirects the output of a program to a file. Errors are not redirected.
+	# anything reedirected to /dev/null is just ignored (i.e. not saved or displayed)
+	echo "Building coverage results"
+
+	for BINARY in "$@"
+	do
+		./$BINARY > /dev/null 2> /dev/null
+	done
+
+	# display the menu
+	menu
+fi
