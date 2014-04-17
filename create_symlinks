@@ -150,6 +150,9 @@ proccess()
 	done
 }
 
-prompt_for "tmux" ./Configs/Linux/.tmux.conf $HOME/.tmux.conf
+# put files to link here (paths should be relative to the repo base dir)
+prompt_for ".tmux.conf [Linux]" ./Configs/Linux/.tmux.conf $HOME/.tmux.conf
+prompt_for "code_coverage [C++ script]" ./Scripts/code_coverage $HOME/bin/code_coverage
 
+# run everything
 proccess
