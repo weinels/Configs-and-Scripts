@@ -1,6 +1,9 @@
 # tmux conf
 # Adam Wilson
 
+# set correct term
+set -g default-terminal screen-256color
+
 # change prefix to Ctrl-a
 # (screen be damned!)
 unbind C-b
@@ -22,9 +25,9 @@ bind C-Down select-pane -D
 
 # more intuitive keybindings for splitting
 unbind %
-bind h split-window -h
+bind h split-window -v
 unbind '"'
-bind v split-window -v
+bind v split-window -h
 
 # resize panes
 bind -r M-Up resize-pane -U 1

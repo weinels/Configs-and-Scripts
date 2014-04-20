@@ -134,7 +134,7 @@ proccess()
 		return
 	fi
 
-	cmd=(dialog --separate-output --checklist "What to link" 50 50 10)
+	cmd=(dialog --separate-output --checklist "What to link" $((size+7)) 50 $size)
 	
 	# display prompt
 	for i in `seq 0 $(($size-1))`
@@ -151,7 +151,8 @@ proccess()
 }
 
 # put files to link here (paths should be relative to the repo base dir)
-prompt_for ".tmux.conf [Linux]" ./Configs/Linux/.tmux.conf $HOME/.tmux.conf
+prompt_for "dex [Linux]" ./Configs/Linux/dex $HOME/.dex/rc
+prompt_for "tmux [Linux]" ./Configs/Linux/tmux $HOME/.tmux.conf
 prompt_for "code_coverage [C++ script]" ./Scripts/code_coverage $HOME/bin/code_coverage
 
 # run everything
