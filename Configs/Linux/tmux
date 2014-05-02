@@ -14,14 +14,14 @@ bind a send-prefix
 bind R source-file ~/.tmux.conf \; display-message "  Config reloaded.".
 
 # pane selection
-bind Left select-pane -L
-bind Right select-pane -R
-bind Up select-pane -U
-bind Down select-pane -D
-bind C-Left select-pane -L
-bind C-Right select-pane -R
-bind C-Up select-pane -U
-bind C-Down select-pane -D
+unbind Left;	bind Left select-pane -L
+unbind Right;	bind Right select-pane -R
+unbind Up;	bind Up select-pane -U
+unbind Down;	bind Down select-pane -D
+unbind C-Left;	bind C-Left select-pane -L
+unbind C-Right;	bind C-Right select-pane -R
+unbind C-Up;	bind C-Up select-pane -U
+unbind C-Down;	bind C-Down select-pane -D
 
 # more intuitive keybindings for splitting
 unbind %
@@ -30,8 +30,7 @@ unbind '"'
 bind v split-window -h
 
 # resize panes
-bind -r M-Up resize-pane -U 1
-bind -r M-Down resize-pane -D 1
-bind -r M-Left resize-pane -L 1
-bind -r M-Right resize-pane -R 1
-
+unbind S-Up;	bind -r S-Up resize-pane -U 1
+unbind S-Down;	bind -r S-Down resize-pane -D 1
+unbind S-Left;	bind -r S-Left resize-pane -L 1
+unbind S-Right;	bind -r S-Right resize-pane -R 1
