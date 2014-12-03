@@ -1,0 +1,98 @@
+# default - not highlighted
+# text    - "highlighted" as text, usually same color as default
+# code	  - usually same as text
+# ident	  - variable, function or unknown type. usually same as code
+#
+# The colors text and code are usually same but spell checking
+# (not implemented, sorry) is only enabled for text (and comments).
+#
+# For unknown highlight colors "default" is used.
+
+# reset colors
+hi
+
+# builtin colors
+#hi default
+#hi nontext blue keep
+#hi noline blue
+#hi wserror default yellow
+#hi selection keep gray keep
+#hi currentline keep keep keep
+#hi linenumber
+#hi statusline black gray
+#hi commandline
+#hi errormsg bold red
+#hi infomsg bold blue
+#hi tabbar black gray
+#hi activetab bold
+#hi inactivetab black gray
+
+# common to many syntax files
+hi text
+hi code
+hi ident
+hi keyword bold
+hi type yellow bold
+hi label bold
+hi notice bold red
+hi numeric magenta
+hi constant magenta
+hi char magenta
+hi string magenta
+hi special bold red
+hi comment lightblue
+hi error black yellow
+hi variable blue
+
+# Same syntax file is used for C and C++.
+hi c.preproc lightgreen
+hi c.preproccond lightgreen
+# To disable highlighting of C++ specific keywords uncomment this.
+#hi c.cpp-keyword
+
+# css
+hi css.id blue
+hi css.class blue
+hi css.pseudoclass magenta bold
+hi css.pseudoelement green bold
+
+# diff
+hi diff.header bold
+hi diff.chunk black gray
+hi diff.added blue
+hi diff.removed bold red
+hi diff.context keep keep
+
+# gitcommit
+hi gitcommit.added bold
+hi gitcommit.modified bold red
+hi gitcommit.untracked bold red
+hi gitcommit.newfile bold green
+
+# go
+hi go.builtin blue
+
+# html
+hi html.tag bold
+hi html.attr blue
+
+# html+smarty
+hi html+smarty.smarty blue
+hi html+smarty.tag bold
+hi html+smarty.attr blue
+
+# javascript
+hi javascript.regexp magenta
+
+# make
+hi make.builtin bold
+
+# sh
+hi sh.builtin bold
+
+# smarty
+hi smarty.smarty blue
+
+# xml
+hi xml.tag bold
+hi xml.attr blue
