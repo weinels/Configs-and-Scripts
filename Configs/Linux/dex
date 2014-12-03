@@ -20,6 +20,8 @@ alias exit "quit"
 
 bind M-\- "prev"
 bind M-= "next"
+bind M-\[ "wprev"
+bind M-\] "wnext"
 
 # format quoted text in email messages
 alias fmt-email "filter fmt -w 74 -p '> '"
