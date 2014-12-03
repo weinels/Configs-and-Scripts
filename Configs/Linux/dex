@@ -1,5 +1,5 @@
 include $PKGDATADIR/binding/default
-include $PKGDATADIR/color/light
+include ~/.dex/colors
 include $PKGDATADIR/compiler/gcc
 include $PKGDATADIR/compiler/go
 include $PKGDATADIR/filetype
