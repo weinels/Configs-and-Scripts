@@ -42,7 +42,7 @@ hi string magenta
 hi special bold red
 hi comment lightblue
 hi error black yellow
-hi variable blue
+hi variable green
 
 # Same syntax file is used for C and C++.
 hi c.preproc lightgreen

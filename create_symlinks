@@ -143,7 +143,7 @@ proccess()
 	done
 
 	choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
-
+	
 	for c in $choices
 	do		
 		try_to_link "${sources[$(($c))]}" "${destinations[$(($c))]}"
