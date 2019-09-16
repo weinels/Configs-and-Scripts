@@ -9,13 +9,25 @@
 
 (add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
 (el-get 'sync)
-
 (setq my-packages
-      '(auto-complete cl-lib ctable deferred el-get emacs-async epc fuzzy helm jedi popup python-environment))
+      '(auto-compile auto-complete cl-lib ctable deferred el-get emacs-async epc fuzzy helm jedi packed popup python-environment yasnippet yasnippet-snippets))
+      
 (el-get 'sync my-packages)
 
+;; use helm for some common tasks
+(global-set-key (kbd "M-x") #'helm-M-x)
+(global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
+(global-set-key (kbd "C-x C-f") #'helm-find-files)
+
+;; enable yas snippets
+(yas-global-mode 1)
+
+;; programming language hooks
 (add-hook 'prog-mode-hook 'flyspell-prog-mode)
 (add-hook 'python-mode-hook 'jedi:setup)
+
+;; add .tpl files to latex mode
+(add-to-list 'auto-mode-alist '("\\.tpl\\'" . latex-mode))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
