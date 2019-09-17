@@ -153,7 +153,6 @@ proccess()
 # put files to link here (paths should be relative to the repo base dir)
 prompt_for "dex [Linux]" ./Configs/Linux/dex $HOME/.dex/rc
 prompt_for "dex colors [Linux]" ./Configs/Linux/dex_colors $HOME/.dex/colors
-prompt_for "emacs [Linux]" ./Configs/Linux/emacs $HOME/.emacs
 prompt_for "tmux [Linux]" ./Configs/Linux/tmux $HOME/.tmux.conf
 prompt_for "code_coverage [C++ script]" ./Scripts/code_coverage $HOME/bin/code_coverage
 
